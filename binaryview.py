@@ -50,41 +50,28 @@ sz:  range:    dir   indir
     name = "8051"
     long_name = "Intel 8051 Family"
 
+    xram_size = 0x10000  # initial assumption, override if desired
 
     @classmethod
     def is_valid_for_data(self, data):
-        """Override this with a test for the file format you're loading."""
-        # example at: https://github.com/adamcritchley/binjaarmbe8
-        return False  # this class is meant to be extended, not used directly
-
-    def __init__(self, data):
-        BinaryView.__init__(self, parent_view=data, file_metadata=data.file)
-        self.platform = Architecture['8051'].standalone_platform
-
-        # See https://github.com/Vector35/binaryninja-api/issues/645
-        # This ensures endianness is propagated; not a huge deal.
-        # While SFRs are arranged in LE order, compilers often store things in
-        # BE order. May be worth having 8051-LE and 8051-BE archs in the
-        # future.
-        self.arch = Architecture['8051']
-
-        self.CODE = mem.CODE
-        self.SFRs = mem.SFRs
-        self.IRAM = mem.IRAM
-        self.XRAM = mem.XRAM
-
-    @classmethod
-    def is_valid_for_data(self, data):
-        """Answer: yes! Only heuristic is size below 2MBytes.
+        """Override this with a test for the file format you're loading.
 
         It's common to find chunks of 8051 firmware embedded in distant devices
         and memory spaces, with no context for what runs it or how it's loaded.
 
         An .ihex loader/editor would be cool, but random carved .bin is likely.
         """
-        return len(data) < 2e6
+        # example at: https://github.com/adamcritchley/binjaarmbe8
+        return False  # this class is meant to be extended, not used directly
 
-    def setup_memory_regions(self):
+    def load_memory(self):
+        """Creates basic IRAM/XRAM/SFR memory spaces required by the lifter.
+
+        Extend with CODE loading for your particular image.
+
+        XRAM is assumed to be the maximum possible size - override xram_size if
+        you want more precision.
+        """
         rw = (SegmentFlag.SegmentReadable | 
               SegmentFlag.SegmentWritable)
 
@@ -101,6 +88,7 @@ sz:  range:    dir   indir
         self.add_auto_section('.data_indirect_only',    mem.IRAM + 0x80, 0x80)
 
         # Provide nice markup for stuff like `pop 0h; pop 1h; pop 2h; pop 3h`
+        # Sometimes, anyway. For some reason symbols aren't always created?
         bank_t = self.arch.parse_types_from_source('''
             struct register_bank __packed{uint8_t R[8];}; 
             /* register_bank bank[4]; */
@@ -120,11 +108,11 @@ sz:  range:    dir   indir
         self.add_auto_section('.special_function_registers', 
                                 mem.SFRs + 0x80, 0x80)
 
-        # TODO param xram size
-        self.add_auto_segment(mem.XRAM, 0x10000, 0, 0, rw)
-        self.add_auto_section('.xram', mem.XRAM, 0x10000)
+        self.add_auto_segment(mem.XRAM, self.xram_size, 0, 0, rw)
+        self.add_auto_section('.xram', mem.XRAM, self.xram_size)
 
-    def setup_sfr_region(self):
+    def load_symbols(self):
+        """Names common special function registers."""
         def sfr(addr, name, bit_addr_ok=0):
             sym = Symbol(SymbolType.DataSymbol, mem.SFRs + addr, name)
             self.define_auto_symbol(sym)
@@ -139,6 +127,7 @@ sz:  range:    dir   indir
             # Well, so much for the plan of warning about inconsistent lack of
             # xrefs. Magic, ho!
             
+        ## TODO: this is probably worth piggybacking on top of mem.regs
         #sfr(0xe0, 'A', 1)  # not ACC, that's stupid
         #sfr(0xf0, 'B', 1)
         sfr(0xd0, 'PSW', 1)
@@ -160,18 +149,47 @@ sz:  range:    dir   indir
         sfr(0x99, 'SBUF')
         sfr(0x87, 'PCON')
 
+    def load_patches(self):
+        """Insert patches into architecture internals here.
+
+        The default does nothing; you probably want to catch
+        AnalysisNotification events and insert patches via low-level hooks.
+        """
+        pass
+
+    def perform_get_entry_point(self):
+        """Will need an override if booting from unknown ROM."""
+        ep = 0 # reset vector
+        return ep
+
+    def perform_is_executable(self):
+        return True # eh sure
+
     def init(self):
         try:
-            self.setup_memory_regions()
-            self.setup_sfr_region()
+            self.load_memory()
+            self.load_symbols()
+            self.load_patches()
             return True
         except:
             log_error(traceback.format_exc())
             return False
 
-    def perform_is_executable(self):
-        return True # eh sure
+    def __init__(self, data):
+        BinaryView.__init__(self, parent_view=data, file_metadata=data.file)
+        # not sure what this is for, copied from somewhere:
+        self.platform = Architecture['8051'].standalone_platform
 
-    def perform_get_entry_point(self):
-        ep = 0 # reset vector
-        return ep
+        # See https://github.com/Vector35/binaryninja-api/issues/645
+        # This ensures endianness is propagated; not a huge deal.
+        # While SFRs are arranged in LE order, compilers often store things in
+        # BE order. May be worth having 8051-LE and 8051-BE archs in the
+        # future.
+        self.arch = Architecture['8051']
+
+        # Don't think this package uses them - leaving them for easy access
+        # from REPL.
+        self.CODE = mem.CODE
+        self.SFRs = mem.SFRs
+        self.IRAM = mem.IRAM
+        self.XRAM = mem.XRAM
