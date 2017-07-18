@@ -254,6 +254,11 @@ def low_level_il(size, name, ops):
                     il.append(il.set_reg(1, ops[0], il.load(1, il.add(6, il.const(6, mem.XRAM), il.reg(1, reg)))))
                 return movx_load_indirect
         else: # store
+            # Note on il.operand(n, expr) annotations:
+            # These only seem to apply to syntax that uses the 'memory access'
+            # tokens ('[', ']') and shifts the {}-annotations inside the
+            # brackets. Since round-trip syntax won't involve those, it doesn't
+            # apply to MCS-51 and many others.
             reg = ops[0][1:]
             if reg == 'DPTR':
                 def movx_store_dptr(il,vs,ea): 

@@ -30,14 +30,14 @@ This isn't a very ambitious goal, but Binary Ninja is still in early development
 
 There's a range of severity for RE tool failures:
 
-1. No failure: code being analyzed is within the tool's service envelope.
-2. Analysis failed but you are warned, and can go fix it by hand or with code.
-3. Silent failure, but at least it was localized.
-4. Failure cascaded into more failures, tool is outputting complete garbage.
+0. No failure: code being analyzed is within the tool's service envelope.
+1. Analysis failed but you are warned, and can go fix it by hand or with code.
+2. Silent failure, but at least it was localized.
+3. Failure cascaded into more failures, tool is outputting complete garbage.
 
-Type 2 failures are a good idea, but I'm lazy and okay with type 3 failures. Type 2 failures in parts of the image that don't matter or can be reversed at a higher layer (FP math libs, HAL guts, early startup code, etc.) are just a distraction, and keeping warning false positive rates low takes effort.
+Type 1 failures are a good idea, but I'm lazy and okay with type 2 failures. Type 1 failures in parts of the image that don't matter or can be reversed at a higher layer (FP math libs, HAL guts, early startup code, etc.) are just a distraction, and keeping warning false positive rates low takes effort.
 
-I'd like to augment skilled users doing deep reverse engineering. Shallow findings reachable by automation or scanner-toting sweatshops are dull, so I don't care how many type 3 failures exist in the tool. I do want to avoid type 4 failures, especially if their output might get written to a database. 
+I'd like to augment skilled users doing deep reverse engineering. Shallow findings reachable by automation or scanner-toting sweatshops are dull, so I don't care how many type 2 failures exist in the tool. I do want to avoid type 3 failures, especially if their output might get written to a database. 
 
 In other words, the auto-analysis system ought to converge rather than diverge. Anything that introduces new code entry points either needs to be sound, or have a mechanism to detect garbage-markup that triggers an undo savepoint. If that's impossible, probably-broken analysis should generate warnings and be postponed pending manual review.
 
