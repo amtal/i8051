@@ -50,22 +50,35 @@ def low_level_il(size, name, ops):
         reti = ret  # actually identical if there's no interrupt!
 
         def push(il,vs,ea): 
-            # Special-case the return value pattern. :)
-            if ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x82:
-                # try using full-width register in case it's a merging issue
-                il.append(il.push(2, il.reg(2, 'DPTR')))
-                return 4
-            elif ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x83:
-                il.append(il.nop())
+            if 0:
+                # FUN ASSUMPTION: if using for ret-stuff, it's push DPL; push DPH
+                # If temporarily storing DPTR on the stack by hand, endianness
+                # *might* be reversed. (Public example: coastermelt firmware.)
+                # So, assumption must be propagated upwards and checked for
+                # otherwise RIP analysis, LLIL lift ends up mis-disassembling
+                # stuff and producing loops, complete type-2 disaster.
+
+                # Special-case the return value pattern. :)
+                if ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x82:
+                    # try using full-width register in case it's a merging issue
+                    il.append(il.push(2, il.reg(2, 'DPTR')))
+                    return 4
+                elif ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x83:
+                    il.append(il.nop())
+                else:
+                    il.append(il.push(1, r(ops[0], il, vs[0])))
             else:
                 il.append(il.push(1, r(ops[0], il, vs[0])))
         def pop(il,vs,ea):
-            if ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x82:
-                il.append(il.unimplemented())
-            elif ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x83:
-                # try using full-width register in case it's a merging issue
-                il.append(il.set_reg(2, 'DPTR', il.pop(2)))
-                return 4
+            if 0:
+                if ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x82:
+                    il.append(il.unimplemented())
+                elif ops[0] == 'data addr' and vs[0] == mem.SFRs + 0x83:
+                    # try using full-width register in case it's a merging issue
+                    il.append(il.set_reg(2, 'DPTR', il.pop(2)))
+                    return 4
+                else:
+                    w(ops[0], il, il.pop(1), vs[0])
             else:
                 w(ops[0], il, il.pop(1), vs[0])
 
