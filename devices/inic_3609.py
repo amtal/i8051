@@ -20,13 +20,7 @@ class Initio3609(Family8051View):
         - Silicon-power_3609_3940_fw_v306RC01.bin
         - YuanJi_3609_3940_fw_v313.bin
         """
-        if data.read(0xF030, 0x9) != 'INIC-3609':
-            return False
-        # don't know how to do this in BinaryView.init, doing it here:
-        self.nullpad = 32
-        while data.read(0x7c00 - self.nullpad, 32) == 32 * '\x00':
-            self.nullpad += 32
-        return True
+        return data.read(0xF030, 0x9) == 'INIC-3609'
 
     def perform_get_entry_point(self):
         return 0
@@ -57,8 +51,11 @@ class Initio3609(Family8051View):
         r_x = (seg_f.SegmentReadable | seg_f.SegmentExecutable |
                 seg_f.SegmentContainsCode)
 
-        self.add_auto_segment(mem.CODE+0x0000, 0x7c00 - self.nullpad, 
-                                       0x0020, 0x7c00 - self.nullpad, r_x)
+        # Would be nice to strip \x00 junk off the end, but don't know how.
+        # Just going to manually eyeball it for the images I have.
+        nullpad = 0x2500  # will truncate larger images :)
+        self.add_auto_segment(mem.CODE+0x0000, 0x7c00 - nullpad, 
+                                       0x0020, 0x7c00 - nullpad, r_x)
         self.add_auto_segment(mem.CODE+0x7c00, 0x0090, 0x7c20, 0x0090, r__)
         self.add_auto_segment(mem.CODE+0x7fbe, 0x0002, 0x7fde, 0x0002, r__)
         self.add_auto_segment(mem.CODE+0xf000, 0x0090, 0xf000, 0x0090, r__)
