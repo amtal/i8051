@@ -4,7 +4,7 @@ from .architecture import MCS51
 from .binaryview import Family8051View
 from .experiments.calling_conventions import SDCCCall, KeilCall, IARCall
 from .experiments.calling_conventions import YoloCall
-from .devices import surface_ec, coastermelt  # self-.register() for now
+from .devices import surface_ec, coastermelt, inic_3609 # self-registering
 
 __version__ = '0.0.0'
 __all__ = ['MCS51']
