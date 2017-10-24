@@ -89,7 +89,7 @@ sz:  range:    dir   indir
 
         # Provide nice markup for stuff like `pop 0h; pop 1h; pop 2h; pop 3h`
         # Sometimes, anyway. For some reason symbols aren't always created?
-        bank_t = self.arch.parse_types_from_source('''
+        bank_t = self.platform.parse_types_from_source('''
             struct register_bank __packed{uint8_t R[8];}; 
             /* register_bank bank[4]; */
         ''').types['register_bank']
