@@ -120,6 +120,8 @@ class MCS51(Architecture):
     }
 
     def perform_get_instruction_info(self, data, addr):
+        if not len(data):
+            return  # edge case during linear sweep
         nfo = InstructionInfo()
         # ana
         size, branch = self.lut.branches[ord(data[0])]
