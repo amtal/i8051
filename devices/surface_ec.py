@@ -1,6 +1,7 @@
 import struct, traceback
 from binaryninja.types import Symbol
 from binaryninja.enums import SymbolType, SegmentFlag, Endianness
+from binaryninja.enums import SectionSemantics
 from binaryninja.log import log_info, log_error
 from .. import mem
 from ..binaryview import Family8051View
@@ -34,9 +35,14 @@ class SurfaceECView(Family8051View):
         # bootloader @ first 0x2000, then this stub
         self.add_auto_segment(mem.CODE+0x2000, 0x6000, 
                                        image_base, 0x6000, r_xc)
+        self.add_auto_section('.code', mem.CODE+0x2000, 0x6000, 
+                SectionSemantics.ReadOnlyCodeSectionSemantics)
         for page in range(4):  # then 4 pages for high half of code
-            self.add_auto_segment(mem.CODE+0x8000 + 0x8000*page, 0x8000, 
-                                  image_base + 0x6000 + 0x8000 * page, 0x8000, r_xc)
+            self.add_auto_segment(mem.CODE+0x8000 + 0x8000*page, 
+                    0x8000, image_base + 0x6000 + 0x8000 * page, 0x8000, r_xc)
+            self.add_auto_section('.page%d' % page, 
+                    mem.CODE+0x8000+0x8000*page, 0x8000,
+                    SectionSemantics.ReadOnlyCodeSectionSemantics)
             self.define_auto_symbol(Symbol(SymbolType.FunctionSymbol, 
                                     mem.CODE+0x8000+0x8000*page, 'page_%d' % page))
             self.add_function(mem.CODE+0x8000*(page+1))

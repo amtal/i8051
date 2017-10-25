@@ -1,5 +1,5 @@
 from binaryninja.types import Symbol
-from binaryninja.enums import SymbolType, SegmentFlag
+from binaryninja.enums import SymbolType, SegmentFlag, SectionSemantics
 from .. import mem
 from ..binaryview import Family8051View
 
@@ -35,23 +35,26 @@ class CoastermeltUSBView(Family8051View):
         rw_ = seg_f.SegmentReadable | seg_f.SegmentWritable
         r_x = (seg_f.SegmentReadable | seg_f.SegmentExecutable |
                 seg_f.SegmentContainsCode)
+        sem_rwd = SectionSemantics.ReadWriteDataSemantics
 
         self.add_auto_segment(mem.IRAM, 0x80, 0, 0, rw_)
-        self.add_auto_section('.registers',     mem.IRAM + 0x00, 0x20)
-        self.add_auto_section('.bits',          mem.IRAM + 0x20, 0x10)
-        self.add_auto_section('.data',          mem.IRAM + 0x30, 0x50)
+        self.add_auto_section('.registers',     mem.IRAM + 0x00, 0x20, sem_rwd)
+        self.add_auto_section('.bits',          mem.IRAM + 0x20, 0x10, sem_rwd)
+        self.add_auto_section('.data',          mem.IRAM + 0x30, 0x50, sem_rwd)
 
         self.add_auto_segment(mem.SFRs + 0x80, 0x80, 0, 0, rw_)
         self.add_auto_section('.special_function_registers', 
-                              mem.SFRs + 0x80, 0x80)
+                              mem.SFRs + 0x80, 0x80, sem_rwd)
 
         self.add_auto_segment(mem.XRAM + 0x4000, 0x0e00, 0, 0, rw_)
         self.add_auto_section('.xram_and_mmio', 
-                              mem.XRAM + 0x4000, 0xe00)
+                              mem.XRAM + 0x4000, 0x0e00, sem_rwd)
 
         # Only portion loaded from firmware file.
         self.add_auto_segment(mem.CODE+0x0000, 0x2000, 
                                        0x0000, 0x2000, r_x)
+        self.add_auto_section('.code', mem.CODE+0x0000, 0x2000, 
+                SectionSemantics.ReadOnlyCodeSectionSemantics)
 
     def load_symbols(self):
         super(CoastermeltUSBView, self).load_symbols()

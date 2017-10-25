@@ -1,5 +1,5 @@
 from binaryninja.types import Symbol
-from binaryninja.enums import SymbolType, SegmentFlag
+from binaryninja.enums import SymbolType, SegmentFlag, SectionSemantics
 from .. import mem
 from ..binaryview import Family8051View
 
@@ -24,6 +24,8 @@ class VL811View(Family8051View):
         seg_f = SegmentFlag
         r_x = (seg_f.SegmentReadable | seg_f.SegmentExecutable |
                seg_f.SegmentContainsCode)
+        self.add_auto_section('.code', mem.CODE+0x0000, 0x4000, 
+                SectionSemantics.ReadOnlyCodeSectionSemantics)
         self.add_auto_segment(mem.CODE+0x0000, 0x4000, 
                                        0x0020, 0x4000, r_x)
 
@@ -43,3 +45,5 @@ class VL811View(Family8051View):
 
     def load_patches(self):
         super(VL811View, self).load_patches()
+
+VL811View.register()

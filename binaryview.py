@@ -4,6 +4,7 @@ from binaryninja.architecture import Architecture
 from binaryninja.binaryview import BinaryView
 from binaryninja.types import Symbol
 from binaryninja.enums import SymbolType, SegmentFlag, Endianness
+from binaryninja.enums import SectionSemantics
 from binaryninja.log import log_info, log_error
 from . import mem
 
@@ -82,10 +83,11 @@ sz:  range:    dir   indir
         # I think this will simplify the lift implementation compared to other
         # possible layouts.
         self.add_auto_segment(mem.IRAM, 0x100, 0, 0, rw)
-        self.add_auto_section('.register_banks',        mem.IRAM + 0x00, 0x20)
-        self.add_auto_section('.data_bitwise_access',   mem.IRAM + 0x20, 0x10)
-        self.add_auto_section('.data',                  mem.IRAM + 0x30, 0x50)
-        self.add_auto_section('.data_indirect_only',    mem.IRAM + 0x80, 0x80)
+        sem_rwd = SectionSemantics.ReadWriteDataSectionSemantics
+        self.add_auto_section('.register_banks',        mem.IRAM + 0x00, 0x20, sem_rwd)
+        self.add_auto_section('.data_bitwise_access',   mem.IRAM + 0x20, 0x10, sem_rwd)
+        self.add_auto_section('.data',                  mem.IRAM + 0x30, 0x50, sem_rwd)
+        self.add_auto_section('.data_indirect_only',    mem.IRAM + 0x80, 0x80, sem_rwd)
 
         # Provide nice markup for stuff like `pop 0h; pop 1h; pop 2h; pop 3h`
         # Sometimes, anyway. For some reason symbols aren't always created?
@@ -106,10 +108,10 @@ sz:  range:    dir   indir
         # that makes sense?            V
         self.add_auto_segment(mem.SFRs + 0x80, 0x80, 0, 0, rw)
         self.add_auto_section('.special_function_registers', 
-                                mem.SFRs + 0x80, 0x80)
+                                mem.SFRs + 0x80, 0x80, sem_rwd)
 
         self.add_auto_segment(mem.XRAM, self.xram_size, 0, 0, rw)
-        self.add_auto_section('.xram', mem.XRAM, self.xram_size)
+        self.add_auto_section('.xram', mem.XRAM, self.xram_size, sem_rwd)
 
     def load_symbols(self):
         """Names common special function registers."""
