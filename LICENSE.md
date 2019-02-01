@@ -1,3 +1,5 @@
+Dual licensed as AGPLv3, **or BSD Zero Clause License if you're @gynvael**.
+
                     GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 
