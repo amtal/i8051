@@ -49,9 +49,9 @@ class lazy_memoized_property(object):
     """Decorator replaces a @property with its return value on first use."""
     def __init__(self, getter): self.getter = getter
     def __get__(self, host, host_class):
-	val = self.getter(host)
-	setattr(host, self.getter.__name__, val)
-	return val
+        val = self.getter(host)
+        setattr(host, self.getter.__name__, val)
+        return val
 
 # Hex Code | Number of Bytes | Mnemonic | Operands
 def _table_text():
