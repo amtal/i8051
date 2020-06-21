@@ -8,7 +8,7 @@ pretending the helpers are inlined.
 ...
 
 To do this it passes state from a BinaryDataNotification registered with a
-particular BinaryView, straight into the perform_get_low_level_il(..) of an
+particular BinaryView, straight into the get_low_level_il(..) of an
 Architecture.
 
 This... Is supported for Function and BinaryView objects via .session_data, but
