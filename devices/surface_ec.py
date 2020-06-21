@@ -1,4 +1,4 @@
-import struct, traceback
+import traceback
 from binaryninja.types import Symbol
 from binaryninja.enums import SymbolType, SegmentFlag, Endianness
 from binaryninja.enums import SectionSemantics
@@ -58,7 +58,7 @@ class SurfaceECView(Family8051View):
             self.define_user_data_var(mem.CODE+base,
                     self.parse_type_string('void*[16]')[0])
             for ea in range(base, base + 16 * 2, 2):
-                fp = struct.unpack('>H', self.read(ea, 2))[0]
+                fp = int.from_bytes(self.read(ea, 2), 'big')
                 fp += mem.CODE
                 self.add_function(fp)
             base += 16 * 2

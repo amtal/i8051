@@ -1,5 +1,5 @@
 from __future__ import print_function
-import time, struct, traceback
+import time, traceback
 import binaryninja
 from binaryninja.architecture import Architecture
 from binaryninja.lowlevelil import LowLevelILFunction, LowLevelILLabel, LLIL_TEMP

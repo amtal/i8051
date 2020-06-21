@@ -3,21 +3,20 @@
 Since the host program only implements a flat memory space, different memory
 types are flattened according to the model in `mem`.
 """
-import struct
 from .. import mem
 
 # immediates
 def imm8_0(data, addr, size): return data[1]  # first operand
 def imm8_1(data, addr, size): return data[2]  # second operand
-def imm16(data, addr, size): return struct.unpack('>xH', data[:3])[0]
+def imm16(data, addr, size): return int.from_bytes(data[1:3], 'big')
 
 # code absolute and relative addresses
 def addr16(data, addr, size): 
-    target = struct.unpack('>xH', data[:3])[0]
+    target = int.from_bytes(data[1:3], 'big')
     return mem.flash_bank_virtual(target, addr)
 def rel(data, addr, size):
     phys_addr = mem.flash_bank_physical(addr)
-    target = phys_addr + size + struct.unpack('b', data[size-1:size])[0]
+    target = phys_addr + size + int.from_bytes(data[size-1:size], "big", signed=True)
     return mem.flash_bank_virtual(target, addr)
 def addr11(data, addr, size):
     rel = mem.flash_bank_physical(addr) >> 11 << 11
