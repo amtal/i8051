@@ -330,12 +330,12 @@ if __name__ == '__main__':
     from pprint import pprint
     tab = InstructionSpec().spec
 
-    print '\tinstruction names:'
+    print('\tinstruction names:')
     pprint(set([name for _,name,_ in tab]))
 
     unique_ops = reduce(set.__or__, [set(ops) for _,_,ops in tab])
-    print '\tregister operands:'
+    print('\tregister operands:')
     pprint(sorted([op for op in unique_ops if op.isupper()]))
-    print '\taddress operands:'
+    print('\taddress operands:')
     pprint([op for op in unique_ops if op.islower()])
 

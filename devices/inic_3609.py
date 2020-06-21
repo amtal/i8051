@@ -20,7 +20,7 @@ class Initio3609(Family8051View):
         - Silicon-power_3609_3940_fw_v306RC01.bin
         - YuanJi_3609_3940_fw_v313.bin
         """
-        return data.read(0xF030, 0x9) == 'INIC-3609'
+        return data.read(0xF030, 0x9) == b'INIC-3609'
 
     def perform_get_entry_point(self):
         return 0

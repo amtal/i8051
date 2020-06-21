@@ -23,7 +23,7 @@ class CoastermeltUSBView(Family8051View):
         """Fun fact: at least one of these strings is transmitted, but not by
         reference. Looks like the compiler emitted it in the string table, but
         inlined constants rather than wasting instructions loading them."""
-        return data.read(0x60, 0x20) == 'MoaiEasterIslandThomasYoyo(^o^)/'
+        return data.read(0x60, 0x20) == b'MoaiEasterIslandThomasYoyo(^o^)/'
 
     def perform_get_entry_point(self):
         return 0

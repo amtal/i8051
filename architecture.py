@@ -124,7 +124,7 @@ class MCS51(Architecture):
             return  # edge case during linear sweep
         nfo = InstructionInfo()
         # ana
-        size, branch = self.lut.branches[ord(data[0])]
+        size, branch = self.lut.branches[data[0]]
         nfo.length = size
         # emu
         if branch:
@@ -142,16 +142,16 @@ class MCS51(Architecture):
         
     def perform_get_instruction_text(self, data, addr):
         # ana
-        size, vals = self.lut.decoders[ord(data[0])]
+        size, vals = self.lut.decoders[data[0]]
         assert len(data) >= size
         vals = [decoder(data, addr, size) for decoder in vals]
         # out / outop
-        toks = self.lut.text[ord(data[0])]
+        toks = self.lut.text[data[0]]
         return out.render(toks, vals), size
 
     def perform_get_instruction_low_level_il(self, data, addr, il):
         # ana
-        code = ord(data[0])
+        code = data[0]
         size, vals = self.lut.decoders[code]
         if len(data) < size:
             # incomplete code due to disassembling data or missing memory

@@ -13,10 +13,10 @@ class SurfaceECView(Family8051View):
 
     @classmethod
     def is_valid_for_data(self, data):
-        if data.read(0xA1 + 8, 5) != '\xa0\x03\x02\x01\x02':
+        if data.read(0xA1 + 8, 5) != b'\xa0\x03\x02\x01\x02':
             return False  # first element, integer, version number
         der_cert = data.read(0xA1, 1374)
-        return der_cert.find('Surface Firmware Signing') != -1
+        return der_cert.find(b'Surface Firmware Signing') != -1
 
     def perform_get_entry_point(self):
         return 0x2000  # as long as it's not 0

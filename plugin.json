@@ -2,7 +2,7 @@
 	"plugin": {
 		"name": "Intel 8051 Family Architecture Plugin",
 		"type": ["architecture"],
-		"api": "python2",
+		"api": "python3",
 		"description": "Disassembler for the 8051 architecture family.",
 		"longdescription": "Targeting improved RE efficiency over IDA by trading off powerful manual tweaking for one-time automation. This means a high-effort implementation exploring all available Binary Ninja features.",
 		"license": {

@@ -13,7 +13,7 @@ class VL811View(Family8051View):
     @classmethod
     def is_valid_for_data(self, data):
         """USB descriptor makes a poor magic value, but there's little else."""
-        return data.read(0x3fa2, 25) == '\0'.join('VIA Labs, Inc')
+        return data.read(0x3fa2, 25) == 'VIA Labs, Inc'.encode('utf-16-le')
 
     def perform_get_entry_point(self):
         return 0
