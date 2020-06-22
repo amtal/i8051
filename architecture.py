@@ -249,7 +249,7 @@ class MCS51(Architecture):
         return
 
 
-class Tables(object):
+class Tables:
     def __init__(self):
         elapsed = time.time()
 

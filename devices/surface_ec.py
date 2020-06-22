@@ -22,7 +22,7 @@ class SurfaceECView(Family8051View):
         return 0x2000  # as long as it's not 0
 
     def load_memory(self):
-        super(SurfaceECView, self).load_memory()
+        super().load_memory()
 
         seg_f = SegmentFlag
         rw_ = seg_f.SegmentReadable | seg_f.SegmentWritable
@@ -48,7 +48,7 @@ class SurfaceECView(Family8051View):
             self.add_function(mem.CODE+0x8000*(page+1))
 
     def load_symbols(self):
-        super(SurfaceECView, self).load_symbols()
+        super().load_symbols()
         # There's six sequential jump tables, used by functions that call
         # jump_R1:2.
         base = 0x45eb  # TODO pull from functions using them?
@@ -75,11 +75,11 @@ class SurfaceECView(Family8051View):
             self.add_function(ea)
 
     def load_patches(self):
-        super(SurfaceECView, self).load_patches()
+        super().load_patches()
         # TODO move EC-specific hooks out of llil_mangler during refactor
 
     def __init__(self, data):
-        super(SurfaceECView, self).__init__(data)
+        super().__init__(data)
         llil_mangler.register_hook(self)
 
 SurfaceECView.register()

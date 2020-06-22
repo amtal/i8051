@@ -30,7 +30,7 @@ class CoastermeltUSBView(Family8051View):
 
     def load_memory(self):
         # Going to load manually to set up only memory that sees use.
-        #super(CoastermeltUSBView, self).load_memory()
+        #super().load_memory()
         seg_f = SegmentFlag
         rw_ = seg_f.SegmentReadable | seg_f.SegmentWritable
         r_x = (seg_f.SegmentReadable | seg_f.SegmentExecutable |
@@ -57,7 +57,7 @@ class CoastermeltUSBView(Family8051View):
                 SectionSemantics.ReadOnlyCodeSectionSemantics)
 
     def load_symbols(self):
-        super(CoastermeltUSBView, self).load_symbols()
+        super().load_symbols()
 
         def isr(name, ea):
             self.define_auto_symbol(Symbol(SymbolType.FunctionSymbol,
@@ -69,6 +69,6 @@ class CoastermeltUSBView(Family8051View):
         isr('no_calls_to_this_hmm', 0x1b14)
 
     def load_patches(self):
-        super(CoastermeltUSBView, self).load_patches()
+        super().load_patches()
 
 CoastermeltUSBView.register()

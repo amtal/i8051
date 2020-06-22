@@ -20,7 +20,7 @@ class VL811View(Family8051View):
 
     def load_memory(self):
         """No idea what the 32-byte header is, mostly 0s anyway."""
-        super(VL811View, self).load_memory()
+        super().load_memory()
         seg_f = SegmentFlag
         r_x = (seg_f.SegmentReadable | seg_f.SegmentExecutable |
                seg_f.SegmentContainsCode)
@@ -30,7 +30,7 @@ class VL811View(Family8051View):
                                        0x0020, 0x4000, r_x)
 
     def load_symbols(self):
-        super(VL811View, self).load_symbols()
+        super().load_symbols()
 
         def isr(name, ea):
             self.define_auto_symbol(Symbol(SymbolType.FunctionSymbol,
@@ -44,6 +44,6 @@ class VL811View(Family8051View):
         # w/e ship it
 
     def load_patches(self):
-        super(VL811View, self).load_patches()
+        super().load_patches()
 
 VL811View.register()

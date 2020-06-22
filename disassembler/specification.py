@@ -13,7 +13,7 @@ semantic specs because the latter had minor errors. (Incrementing PC by 2 on a
 scrape.
 """
 
-class InstructionSpec(object):
+class InstructionSpec:
     """Assembly and machine code produced by 1-byte opcode dispatch.
 
     Call `refine` to generate special-purpose lookup tables.
@@ -45,7 +45,7 @@ refine(self, f(size, name, [operand]) -> A) -> [A]*256
             size = int(size) if size else 1  # 'reserved' is impl. defined :/
             self.spec.append([size, name.lower(), operands.split(', ')])
 
-class lazy_memoized_property(object):
+class lazy_memoized_property:
     """Decorator replaces a @property with its return value on first use."""
     def __init__(self, getter): self.getter = getter
     def __get__(self, host, host_class):
