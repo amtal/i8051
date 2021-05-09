@@ -68,8 +68,8 @@ class SurfaceECView(Family8051View):
         # 0x3ff8 last one
         # TODO: autodiscover this region with an instruction regex?
         for ea in range(0x3548, 0x3ff8+6, 6):
-            if (self.read(ea, 1) != '\x90' or
-                self.read(ea+3, 1) != '\x02'):
+            if (self.read(ea, 1) != b'\x90' or
+                self.read(ea+3, 1) != b'\x02'):
                 msg = 'Bad instruction in trampoline jump at '+hex(ea)
                 raise RuntimeError(msg)
             self.add_function(ea)
