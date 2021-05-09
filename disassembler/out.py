@@ -18,7 +18,7 @@ def render(row, vals):
     return sum([remap(tok) for tok in row], [])
 
 def tokens(_, name, operands):
-    """Everything needed for perform_get_instruction_text(..)
+    """Everything needed for get_instruction_text(..)
 
     :: (..) -> [[TT | (render_fn, decoded_operand_index)]]
     """

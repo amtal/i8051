@@ -13,7 +13,7 @@ semantic specs because the latter had minor errors. (Incrementing PC by 2 on a
 scrape.
 """
 
-class InstructionSpec(object):
+class InstructionSpec:
     """Assembly and machine code produced by 1-byte opcode dispatch.
 
     Call `refine` to generate special-purpose lookup tables.
@@ -45,13 +45,13 @@ refine(self, f(size, name, [operand]) -> A) -> [A]*256
             size = int(size) if size else 1  # 'reserved' is impl. defined :/
             self.spec.append([size, name.lower(), operands.split(', ')])
 
-class lazy_memoized_property(object):
+class lazy_memoized_property:
     """Decorator replaces a @property with its return value on first use."""
     def __init__(self, getter): self.getter = getter
     def __get__(self, host, host_class):
-	val = self.getter(host)
-	setattr(host, self.getter.__name__, val)
-	return val
+        val = self.getter(host)
+        setattr(host, self.getter.__name__, val)
+        return val
 
 # Hex Code | Number of Bytes | Mnemonic | Operands
 def _table_text():
@@ -330,12 +330,12 @@ if __name__ == '__main__':
     from pprint import pprint
     tab = InstructionSpec().spec
 
-    print '\tinstruction names:'
+    print('\tinstruction names:')
     pprint(set([name for _,name,_ in tab]))
 
     unique_ops = reduce(set.__or__, [set(ops) for _,_,ops in tab])
-    print '\tregister operands:'
+    print('\tregister operands:')
     pprint(sorted([op for op in unique_ops if op.isupper()]))
-    print '\taddress operands:'
+    print('\taddress operands:')
     pprint([op for op in unique_ops if op.islower()])
 

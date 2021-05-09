@@ -1,5 +1,5 @@
 from __future__ import print_function
-import time, struct, traceback
+import time, traceback
 import binaryninja
 from binaryninja.architecture import Architecture
 from binaryninja.lowlevelil import LowLevelILFunction, LowLevelILLabel, LLIL_TEMP
@@ -119,12 +119,12 @@ class MCS51(Architecture):
         LowLevelILFlagCondition.LLFC_NO: ["ov"],
     }
 
-    def perform_get_instruction_info(self, data, addr):
+    def get_instruction_info(self, data, addr):
         if not len(data):
             return  # edge case during linear sweep
         nfo = InstructionInfo()
         # ana
-        size, branch = self.lut.branches[ord(data[0])]
+        size, branch = self.lut.branches[data[0]]
         nfo.length = size
         # emu
         if branch:
@@ -140,18 +140,18 @@ class MCS51(Architecture):
                 nfo.add_branch(BranchType.FalseBranch, addr + size)
         return nfo
         
-    def perform_get_instruction_text(self, data, addr):
+    def get_instruction_text(self, data, addr):
         # ana
-        size, vals = self.lut.decoders[ord(data[0])]
+        size, vals = self.lut.decoders[data[0]]
         assert len(data) >= size
         vals = [decoder(data, addr, size) for decoder in vals]
         # out / outop
-        toks = self.lut.text[ord(data[0])]
+        toks = self.lut.text[data[0]]
         return out.render(toks, vals), size
 
-    def perform_get_instruction_low_level_il(self, data, addr, il):
+    def get_instruction_low_level_il(self, data, addr, il):
         # ana
-        code = ord(data[0])
+        code = data[0]
         size, vals = self.lut.decoders[code]
         if len(data) < size:
             # incomplete code due to disassembling data or missing memory
@@ -162,9 +162,9 @@ class MCS51(Architecture):
         size_override = build(il, vals, addr)
         return size_override if size_override != None else size
         
-    #def perform_get_flag_condition_low_level_il(self, cond, il):
+    #def get_flag_condition_low_level_il(self, cond, il):
     #    il.append(il.unimplemented())
-    def perform_get_flag_write_low_level_il(self, op, size, write_type, flag,
+    def get_flag_write_low_level_il(self, op, size, write_type, flag,
                                             operands, il):
         # This can't be right; why doesn't it work on its own?
         if 0 and flag == 'c':
@@ -177,7 +177,7 @@ class MCS51(Architecture):
             #return il.const(0, 1)
             return il.test_bit(1, il.reg(1, operands[0]), il.const(0, 0x01))
         else:
-            fun = Architecture.perform_get_flag_write_low_level_il
+            fun = Architecture.get_flag_write_low_level_il
             retval = fun(self, op, size, write_type, flag, operands, il)
             #log_info('flag_write '+hex(il.current_address)+' | '+repr(retval)+' | '+repr((op, size, write_type, flag, operands, il)))
             return retval
@@ -223,7 +223,7 @@ class MCS51(Architecture):
         return luts
         
 
-    def perform_get_associated_arch_by_address(self, addr):
+    def get_associated_arch_by_address(self, addr):
         # Waaait a second. add_branch has an optional 'arch' argument
         #
         # Can I branch from x86 into BPF? Or .NET IL? Or obfs. interpreter
@@ -237,11 +237,11 @@ class MCS51(Architecture):
     ## That from-IDA patching thing them game hackers are so keen on...
     ##
 
-    def perform_always_branch(self, data, addr):
+    def always_branch(self, data, addr):
         return # TODO do this, even if that's not how you normally patch
-    def perform_convert_to_nop(data, addr):
+    def convert_to_nop(data, addr):
         return
-    def perform_assemble(code, addr):
+    def assemble(code, addr):
         # TODO either hand-assemble, or find some nice embeddable asm /w
         # macros and proper labels and stuff? will need to double-check syntax
         # compat
@@ -249,7 +249,7 @@ class MCS51(Architecture):
         return
 
 
-class Tables(object):
+class Tables:
     def __init__(self):
         elapsed = time.time()
 

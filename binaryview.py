@@ -1,4 +1,3 @@
-import struct
 import traceback
 from binaryninja.architecture import Architecture
 from binaryninja.binaryview import BinaryView

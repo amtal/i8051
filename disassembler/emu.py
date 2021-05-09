@@ -3,7 +3,7 @@ from binaryninja.enums import BranchType as BT
 from . import ana_op
 
 def branch_type(size, name, _):
-    """Everything needed for perform_get_instruction_info(..)
+    """Everything needed for get_instruction_info(..)
 
     (..) -> [(size, branch)]
       where

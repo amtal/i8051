@@ -1,4 +1,4 @@
-import struct, traceback
+import traceback
 from binaryninja.types import Symbol
 from binaryninja.enums import SymbolType, SegmentFlag, Endianness
 from binaryninja.enums import SectionSemantics
@@ -13,16 +13,16 @@ class SurfaceECView(Family8051View):
 
     @classmethod
     def is_valid_for_data(self, data):
-        if data.read(0xA1 + 8, 5) != '\xa0\x03\x02\x01\x02':
+        if data.read(0xA1 + 8, 5) != b'\xa0\x03\x02\x01\x02':
             return False  # first element, integer, version number
         der_cert = data.read(0xA1, 1374)
-        return der_cert.find('Surface Firmware Signing') != -1
+        return der_cert.find(b'Surface Firmware Signing') != -1
 
     def perform_get_entry_point(self):
         return 0x2000  # as long as it's not 0
 
     def load_memory(self):
-        super(SurfaceECView, self).load_memory()
+        super().load_memory()
 
         seg_f = SegmentFlag
         rw_ = seg_f.SegmentReadable | seg_f.SegmentWritable
@@ -48,7 +48,7 @@ class SurfaceECView(Family8051View):
             self.add_function(mem.CODE+0x8000*(page+1))
 
     def load_symbols(self):
-        super(SurfaceECView, self).load_symbols()
+        super().load_symbols()
         # There's six sequential jump tables, used by functions that call
         # jump_R1:2.
         base = 0x45eb  # TODO pull from functions using them?
@@ -58,7 +58,7 @@ class SurfaceECView(Family8051View):
             self.define_user_data_var(mem.CODE+base,
                     self.parse_type_string('void*[16]')[0])
             for ea in range(base, base + 16 * 2, 2):
-                fp = struct.unpack('>H', self.read(ea, 2))[0]
+                fp = int.from_bytes(self.read(ea, 2), 'big')
                 fp += mem.CODE
                 self.add_function(fp)
             base += 16 * 2
@@ -68,18 +68,18 @@ class SurfaceECView(Family8051View):
         # 0x3ff8 last one
         # TODO: autodiscover this region with an instruction regex?
         for ea in range(0x3548, 0x3ff8+6, 6):
-            if (self.read(ea, 1) != '\x90' or
-                self.read(ea+3, 1) != '\x02'):
+            if (self.read(ea, 1) != b'\x90' or
+                self.read(ea+3, 1) != b'\x02'):
                 msg = 'Bad instruction in trampoline jump at '+hex(ea)
                 raise RuntimeError(msg)
             self.add_function(ea)
 
     def load_patches(self):
-        super(SurfaceECView, self).load_patches()
+        super().load_patches()
         # TODO move EC-specific hooks out of llil_mangler during refactor
 
     def __init__(self, data):
-        super(SurfaceECView, self).__init__(data)
+        super().__init__(data)
         llil_mangler.register_hook(self)
 
 SurfaceECView.register()

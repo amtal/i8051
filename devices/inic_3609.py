@@ -20,7 +20,7 @@ class Initio3609(Family8051View):
         - Silicon-power_3609_3940_fw_v306RC01.bin
         - YuanJi_3609_3940_fw_v313.bin
         """
-        return data.read(0xF030, 0x9) == 'INIC-3609'
+        return data.read(0xF030, 0x9) == b'INIC-3609'
 
     def perform_get_entry_point(self):
         return 0
@@ -43,7 +43,7 @@ class Initio3609(Family8051View):
         just something worth trying. Plus, keeps scroll bar useful until such a
         time as fancy ones are added.
         """
-        super(Initio3609, self).load_memory()
+        super().load_memory()
 
         seg_f = SegmentFlag
         r__ = seg_f.SegmentReadable
@@ -62,7 +62,7 @@ class Initio3609(Family8051View):
         # last one is misplaced - doubt the 0x20 offset applies
 
     def load_symbols(self):
-        super(Initio3609, self).load_symbols()
+        super().load_symbols()
 
         def isr(name, ea):
             self.define_auto_symbol(Symbol(SymbolType.FunctionSymbol,
@@ -75,6 +75,6 @@ class Initio3609(Family8051View):
         isr('isr_ext1', 0x13)
 
     def load_patches(self):
-        super(Initio3609, self).load_patches()
+        super().load_patches()
 
 Initio3609.register()
